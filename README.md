@@ -13,9 +13,10 @@ It can be used to human readable communication between devices. Simply give a co
 Just put your code inside the <em> interpret() </em> function.<br>
 I've also included a </em> forwardable text </em>feature. To use it, put your text within brackets:
 <br>
-<p>"Good afternoon, Sir!"</p>
+"Good afternoon, Sir!"
 <br>
 Fasterpreter comes with examples and lots of comments to help you. Try opening Arduino Serial Monitor and typing <em>>math.sum(182,233)</em> or <em>>friends(Batman,Iron Man)</em>.
+<br>
 <br>
 Yeah, simple like that.<br>
 Yeah, it's fast, isn't it?
