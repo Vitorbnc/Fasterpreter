@@ -1,4 +1,4 @@
-
+//Author: Vítor Barbosa
 // Variables used by the Interpreter
 
 const int dirFields=2;  // Set your number of dirs here
@@ -11,6 +11,7 @@ bool hasArgs=false;
 bool gotCmd=false;
 bool gotFwd = false;
 
+//If you send a forwardable, this String will store it
 String forwardable;
 
 // Just a small name convention
