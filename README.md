@@ -19,5 +19,5 @@ I've also included a </em> forwardable text </em>feature. To use it, put your te
 Fasterpreter comes with examples and lots of comments to help you. Try opening Arduino Serial Monitor and typing <em>>math.sum(182,233)</em> or <em>>friends(Batman,Iron Man)</em>.
 <br>
 <br>
-Yeah, simple like that.<br>
-Yeah, it's fast, isn't it?
+Yeah, fast simple like that.<br>
+
