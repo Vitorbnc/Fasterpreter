@@ -14,9 +14,9 @@ The leading **>** is mandatory, without it, your commands won't do anything. Thi
 Just put your code inside the `interpret()` function.
 I've also included a **forwardable text** feature. To use it, put your text within quotes:
 <br>
-*"Good afternoon, Sir!"*
+`"Good afternoon, Sir!"`
 <br>
-**Fasterpreter** comes with examples in the code and lots of comments to help you. Try opening Arduino Serial Monitor and typing <em>>math.sum(182,233)</em> or <em>>friends(Batman,Iron Man)</em>.
+**Fasterpreter** comes with examples in the code and lots of comments to help you. Try opening Arduino Serial Monitor and typing `>math.sum(182,233)` or `>friends(Batman,Superman)`
 <br>
 <br>
 Yeah, fast simple like that.<br>
