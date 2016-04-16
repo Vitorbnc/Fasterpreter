@@ -100,8 +100,14 @@ if(strcmp(dir[0].c_str(),"wifi")==0){
    }
 }
 
+else if(strcmp(dir[0].c_str(),"math")==0){
+  if(strcmp(dir[1].c_str(),"sum")==0){
+    uart.print("Result is ");
+    uart.println(intArg[0]+intArg[1]);
+   }
+}
 
-// try >friends(Batman,Iron Man)
+// try >friends(Batman,Superman)
 // Using strncmp to compare just n chars, it should be faster for bigger words
 else if(strncmp(dir[0].c_str(),"friends",4)==0){
 String tmp = "Wow, ";
