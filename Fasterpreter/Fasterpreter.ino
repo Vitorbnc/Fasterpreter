@@ -1,4 +1,5 @@
-//Author: Vítor Barbosa
+int value;
+
 // Variables used by the Interpreter
 
 const int dirFields=2;  // Set your number of dirs here
@@ -6,42 +7,114 @@ const int argFields=3;  //Set your number of args here
 String dir[dirFields];
 String strArg[argFields];
 int intArg[argFields];
+bool hasStrArg[argFields];
+bool hasIntArg[argFields];
 // Use the following if you want to check for args, commands or forwardables
 bool hasArgs=false;
 bool gotCmd=false;
 bool gotFwd = false;
 
-//If you send a forwardable, this String will store it
+long startTime, endTime;
+
 String forwardable;
+String cmd;
 
-// Just a small name convention
- #define serialPort Serial
+#define uart Serial
 
-// This is optional, just for debugging
-void  printData(){
-        if(gotCmd) {
-                for(int i=0; i<dirFields; i++) {
-                        serialPort.print("printing dir");
-                        serialPort.print(i);
-                        serialPort.print(":");
-                        serialPort.print(dir[i]);
-                        serialPort.println();
-                }
-                for(int i=0; i<argFields; i++) {
-                        serialPort.print("printing arg");
-                        serialPort.print(i);
-                        serialPort.print(":");
-                        serialPort.print(intArg[i]);
-                        serialPort.print(" and ");
-                        serialPort.print(strArg[i]);
-                        serialPort.println();
-                }
+void logTime(){
+  if(startTime==-1){
+    startTime=micros();
+  }
+  else if(endTime==-1){
+    endTime=micros();
+  }
+}
+
+void printTime(String intro){
+long interval;
+interval=endTime-startTime;
+startTime=-1;
+endTime=-1;
+String txt = intro;
+txt+=" took ";
+txt+=interval;
+ txt+="uS";
+  uart.println(txt);
+}
+void cleanInterpreter(){
+        gotFwd=false;
+        gotCmd=false;
+        forwardable="";
+        /* // clean dirs only if necessary
+         for(int i=0;i<dirFields;i++){
+          dir[i]="";
         }
-
-        if(gotFwd) {
-                serialPort.println(forwardable);
+         */
+        for(int i=0; i<argFields; i++) {
+                //intArg[i]=0;
+                //strArg[i]=""; // clean String Arguments only if necessary
+                hasStrArg[i]=false;
+                hasIntArg[i]=false;
         }
+}
 
+void setup() {
+  uart.begin(115200);
+  delay(10);
+cleanInterpreter();
+
+}
+
+void printData(){
+  for(int i=0;i<dirFields;i++){
+    uart.print("dir "); uart.print(i); uart.print(":");
+    uart.println(dir[i]);
+  }
+  for(int i=0;i<argFields;i++){
+    if(hasStrArg[i]){
+    uart.print("strArg "); uart.print(i); uart.print(":");
+    uart.println(strArg[i]);
+    }
+    else {
+      uart.print("Has no strArg "); uart.print(i);
+    }
+    if(hasIntArg[i]){
+    uart.print("intArg "); uart.print(i); uart.print(":");
+    uart.println(intArg[i]);
+    }
+    else{
+      uart.print("Has no intArg "); uart.print(i);
+    }
+  }
+}
+
+void interpret(){
+// Uncomment the line below to print every dir and arg. Useful for debugging or understanding this code
+//printData();
+
+// Using strcmp instead of String1==String2 because the first method is faster
+if(strcmp(dir[0].c_str(),"wifi")==0){
+  if(strcmp(dir[1].c_str(),"led")==0){
+    uart.println("command is: wifi.led");
+
+   }
+}
+
+
+// try >friends(Batman,Iron Man)
+// Using strncmp to compare just n chars, it should be faster for bigger words
+else if(strncmp(dir[0].c_str(),"friends",4)==0){
+String tmp = "Wow, ";
+tmp+= strArg[0]; tmp+= " and"; tmp+=strArg[1];
+tmp+=  " are friends now!";
+uart.println(tmp);
+
+}
+
+
+
+// Don't remove this line
+  cleanInterpreter();
 }
 
 void  parseArgs(String rawTxt){
@@ -54,8 +127,14 @@ void  parseArgs(String rawTxt){
                 if(commaIndex!=-1) {
                         tmp= rawTxt.substring(old_commaIndex+1,commaIndex);
                         char c =  tmp.charAt(0);
-                        if(!isDigit(c)&& c!='-') strArg[i] = tmp;
-                        else intArg[i] = tmp.toInt();
+                        if(!isDigit(c)&& c!='-'&& c!='+') {
+                          strArg[i] = tmp;
+                          hasStrArg[i] = true;
+                        }
+                        else {
+                          intArg[i] = tmp.toInt();
+                          hasIntArg[i] = true;
+                        }
 
                         old_commaIndex = commaIndex;
                 }
@@ -63,29 +142,24 @@ void  parseArgs(String rawTxt){
                         oneMore=false;
                         tmp = rawTxt.substring(old_commaIndex+1);
                         char c =  tmp.charAt(0);
-                        if(!isDigit(c)&& c!='-'){
+                        if(!isDigit(c)&& c!='-'&& c!='+'){
                           /*
                            // removes the last ')', using length()-1 because the index starts at 0
                           tmp.remove(tmp.length()-1);
                           */
+                          hasStrArg[i] = true;
                           strArg[i] = tmp;
                         }
-                        else intArg[i] = tmp.toInt();
+                        else {
+                          intArg[i] = tmp.toInt();
+                          hasIntArg[i] = true;
+                        }
 
                 }
         }
 
 }
-void cleanInterpreter(){
-        gotFwd=false;
-        gotCmd=false;
-        forwardable="";
-        //mqttCmd ="";
-        for(int i=0; i<argFields; i++) {
-                intArg[i]=0;
-                strArg[i]="";
-        }
-}
+
 
 void  parseDirs(String fullTxt){
         //Eg.: >car.go(100,100,20)
@@ -126,73 +200,32 @@ void  parseDirs(String fullTxt){
         }
 }
 
-void interpret(){
-// Uncomment the line below to print every dir and arg. Useful for debugging or understanding this code
-//printData();
+void  readStreams(){
 
-if(dir[0]=="wifi"){
-  if(dir[1]=="led"){
-    serialPort.println("command is: wifi.led");
+        if(uart.available()) {
 
-  
- }
-}
-
-// try >math.sum(1,2);
-else if(dir[0]=="math"){
-
-  if(dir[1]=="sum"){
-
-    String tmp = "Result is:";
-    int a = intArg[0];
-    int b = intArg[1];
-    tmp += a+b;
-    serialPort.println(tmp);
-  }
-
-}
-// try >friends(Batman,Iron Man)
-else if(dir[0]=="friends"){
-String tmp = "Wow, ";
-tmp+= strArg[0]; tmp+= " and"; tmp+=strArg[1];
-tmp+=  " are friends now!";
-serialPort.println(tmp);
-
-}
-
-
-// Don't remove this line
-  cleanInterpreter();
-}
-
-void  readSerial(){
-        if(serialPort.available()) {
-
-                char c = serialPort.read();
+                char c = uart.read();
                 if(c=='>') {
-                        String serialTxt = serialPort.readStringUntil(')');
+                        String serialTxt = uart.readStringUntil(')');
                         serialTxt+=')';
-                        //serialPort.println(serialTxt);
+                        //uart.println(serialTxt);
                         parseDirs(serialTxt);
 
 
                 }
                 else if (c=='\"') {
                         gotFwd=true;
-                        forwardable= serialPort.readStringUntil('\"');
+                        forwardable= uart.readStringUntil('\"');
                         // use forwardable here
                 }
         }
 }
 
-void setup(){
-        serialPort.begin(115200);
-        // You have to call this one time
-        cleanInterpreter();
+void loop() {
+  //delay(5000);
+  ++value;
 
-}
+  readStreams();
 
-void loop(){
-    // The only function you must call to run the interpreter
-        readSerial();
+
 }
