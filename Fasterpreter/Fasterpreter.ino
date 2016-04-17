@@ -1,56 +1,92 @@
-int value;
+#define uart Serial
 
-// Variables used by the Interpreter
 
-const int dirFields=2;  // Set your number of dirs here
-const int argFields=3;  //Set your number of args here
-String dir[dirFields];
-String strArg[argFields];
-int intArg[argFields];
-bool hasStrArg[argFields];
-bool hasIntArg[argFields];
+
+
+class Fasterpreter {
+
+protected:
+const static int dirCount=2;  // Set your number of dirs here
+const static int argCount=3;  //Set your number of args here
+
+public:
+
+String dir[dirCount];
+String strArg[argCount];
+int intArg[argCount];
+bool hasStrArg[argCount];
+bool hasIntArg[argCount];
 // Use the following if you want to check for args, commands or forwardables
 bool hasArgs=false;
 bool gotCmd=false;
 bool gotFwd = false;
-
-long startTime, endTime;
-
+bool shouldPrintData = false;
 String forwardable;
 String cmd;
 
-#define uart Serial
 
-void logTime(){
-  if(startTime==-1){
-    startTime=micros();
-  }
-  else if(endTime==-1){
-    endTime=micros();
-  }
+// constructor here
+Fasterpreter(){
+        cleanInterpreter();
 }
 
-void printTime(String intro){
-long interval;
-interval=endTime-startTime;
-startTime=-1;
-endTime=-1;
-String txt = intro;
-txt+=" took ";
-txt+=interval;
- txt+="uS";
-  uart.println(txt);
+
+void readStream(HardwareSerial* inStream){
+        if(inStream->available()) {
+                // inStream->read(); is equivalent to *inStream.read()  ------ reads "value pointed to by inStream", it gets the value pointed by the pointer, not its address
+                char c = inStream->read();
+                if(c=='>') {
+                        String serialTxt = inStream->readStringUntil(')');
+                        serialTxt+=')';
+                        //uart.println(serialTxt);
+                        parse(serialTxt);
+
+                }
+                // if you don't want forwardables feature, just comment the lines below
+                /*
+                   else if (c=='\"') {
+                        gotFwd=true;
+                        forwardable= inStream->readStringUntil('\"');
+                        // use forwardable here
+                   }
+                 */
+        }
 }
+
+void printData(){
+        for(int i=0; i<dirCount; i++) {
+                uart.print("dir "); uart.print(i); uart.print(":");
+                uart.println(dir[i]);
+        }
+        for(int i=0; i<argCount; i++) {
+                if(hasStrArg[i]) {
+                        uart.print("strArg "); uart.print(i); uart.print(":");
+                        uart.println(strArg[i]);
+                }
+                else {
+                        uart.print("Has no strArg "); uart.print(i);
+                }
+                if(hasIntArg[i]) {
+                        uart.print("intArg "); uart.print(i); uart.print(":");
+                        uart.println(intArg[i]);
+                }
+                else{
+                        uart.print("Has no intArg "); uart.print(i);
+                }
+        }
+}
+
+
 void cleanInterpreter(){
         gotFwd=false;
         gotCmd=false;
-        forwardable="";
+        //forwardable="";
         /* // clean dirs only if necessary
-         for(int i=0;i<dirFields;i++){
-          dir[i]="";
-        }
+           for(int i=0;i<dirCount;i++){
+           dir[i]="";
+           }
          */
-        for(int i=0; i<argFields; i++) {
+        for(int i=0; i<argCount; i++) {
                 //intArg[i]=0;
                 //strArg[i]=""; // clean String Arguments only if necessary
                 hasStrArg[i]=false;
@@ -58,88 +94,24 @@ void cleanInterpreter(){
         }
 }
 
-void setup() {
-  uart.begin(115200);
-  delay(10);
-cleanInterpreter();
-
-}
-
-void printData(){
-  for(int i=0;i<dirFields;i++){
-    uart.print("dir "); uart.print(i); uart.print(":");
-    uart.println(dir[i]);
-  }
-  for(int i=0;i<argFields;i++){
-    if(hasStrArg[i]){
-    uart.print("strArg "); uart.print(i); uart.print(":");
-    uart.println(strArg[i]);
-    }
-    else {
-      uart.print("Has no strArg "); uart.print(i);
-    }
-    if(hasIntArg[i]){
-    uart.print("intArg "); uart.print(i); uart.print(":");
-    uart.println(intArg[i]);
-    }
-    else{
-      uart.print("Has no intArg "); uart.print(i);
-    }
-  }
-}
-
-void interpret(){
-// Uncomment the line below to print every dir and arg. Useful for debugging or understanding this code
-//printData();
-
-// Using strcmp instead of String1==String2 because the first method is faster
-if(strcmp(dir[0].c_str(),"wifi")==0){
-  if(strcmp(dir[1].c_str(),"led")==0){
-    uart.println("command is: wifi.led");
-
-   }
-}
-
-else if(strcmp(dir[0].c_str(),"math")==0){
-  if(strcmp(dir[1].c_str(),"sum")==0){
-    uart.print("Result is ");
-    uart.println(intArg[0]+intArg[1]);
-   }
-}
-
-// try >friends(Batman,Superman)
-// Using strncmp to compare just n chars, it should be faster for bigger words
-else if(strncmp(dir[0].c_str(),"friends",4)==0){
-String tmp = "Wow, ";
-tmp+= strArg[0]; tmp+= " and"; tmp+=strArg[1];
-tmp+=  " are friends now!";
-uart.println(tmp);
-
-}
-
-
-
-// Don't remove this line
-  cleanInterpreter();
-}
 
 void  parseArgs(String rawTxt){
         // parses the function arguments. E.g.:(100,10,-25)
         String tmp;
         int old_commaIndex =-1;
         bool oneMore = true;
-        for(int i=0; i<argFields; i++) {
+        for(int i=0; i<argCount; i++) {
                 int commaIndex = rawTxt.indexOf(',',old_commaIndex+1);
                 if(commaIndex!=-1) {
                         tmp= rawTxt.substring(old_commaIndex+1,commaIndex);
                         char c =  tmp.charAt(0);
                         if(!isDigit(c)&& c!='-'&& c!='+') {
-                          strArg[i] = tmp;
-                          hasStrArg[i] = true;
+                                strArg[i] = tmp;
+                                hasStrArg[i] = true;
                         }
                         else {
-                          intArg[i] = tmp.toInt();
-                          hasIntArg[i] = true;
+                                intArg[i] = tmp.toInt();
+                                hasIntArg[i] = true;
                         }
 
                         old_commaIndex = commaIndex;
@@ -148,17 +120,17 @@ void  parseArgs(String rawTxt){
                         oneMore=false;
                         tmp = rawTxt.substring(old_commaIndex+1);
                         char c =  tmp.charAt(0);
-                        if(!isDigit(c)&& c!='-'&& c!='+'){
-                          /*
-                           // removes the last ')', using length()-1 because the index starts at 0
-                          tmp.remove(tmp.length()-1);
-                          */
-                          hasStrArg[i] = true;
-                          strArg[i] = tmp;
+                        if(!isDigit(c)&& c!='-'&& c!='+') {
+                                /*
+                                   // removes the last ')', using length()-1 because the index starts at 0
+                                   tmp.remove(tmp.length()-1);
+                                 */
+                                hasStrArg[i] = true;
+                                strArg[i] = tmp;
                         }
                         else {
-                          intArg[i] = tmp.toInt();
-                          hasIntArg[i] = true;
+                                intArg[i] = tmp.toInt();
+                                hasIntArg[i] = true;
                         }
 
                 }
@@ -167,7 +139,7 @@ void  parseArgs(String rawTxt){
 }
 
 
-void  parseDirs(String fullTxt){
+void  parse(String fullTxt){
         //Eg.: >car.go(100,100,20)
         //>car.turn(10)
         //display.show(lalalal)
@@ -179,7 +151,7 @@ void  parseDirs(String fullTxt){
 
         int old_dotIndex =-1;
         bool oneMore = true;
-        for(int i=0; i<dirFields; i++) {
+        for(int i=0; i<dirCount; i++) {
                 int dotIndex = rawTxt.indexOf('.',old_dotIndex+1);
                 if(dotIndex!=-1) {
                         dir[i] = rawTxt.substring(old_dotIndex+1,dotIndex);
@@ -206,32 +178,64 @@ void  parseDirs(String fullTxt){
         }
 }
 
-void  readStreams(){
 
-        if(uart.available()) {
+// This has to be defined later
+void interpret();
 
-                char c = uart.read();
-                if(c=='>') {
-                        String serialTxt = uart.readStringUntil(')');
-                        serialTxt+=')';
-                        //uart.println(serialTxt);
-                        parseDirs(serialTxt);
+};
+//----------------- end of Fasterpreter class
+
+// Instantiating the class here
+Fasterpreter interpreter;
 
 
-                }
-                else if (c=='\"') {
-                        gotFwd=true;
-                        forwardable= uart.readStringUntil('\"');
-                        // use forwardable here
-                }
-        }
+void setup() {
+        uart.begin(115200);
+        delay(10);
+
 }
 
 void loop() {
-  //delay(5000);
-  ++value;
 
-  readStreams();
+        // This method requires the address of (& operator) a HardwareSerial object. E.g: &Serial or &Serial1
+        // You can also read data in another function and call interpreter.parse(Input_String_without_>_)
+        interpreter.readStream(&uart);
 
 
+}
+
+//-------------------------------------- Definition of interpret method here-------------------------------------------
+void Fasterpreter::interpret(){
+// Useful for debugging or understanding this code
+        if(shouldPrintData) printData();
+
+// Using strcmp instead of String1==String2 because the first method is faster
+        if(strcmp(dir[0].c_str(),"wifi")==0) {
+                if(strcmp(dir[1].c_str(),"led")==0) {
+                        uart.println("command is: wifi.led");
+
+                }
+        }
+
+        else if(strcmp(dir[0].c_str(),"math")==0) {
+                if(strcmp(dir[1].c_str(),"sum")==0) {
+                        uart.print("Result is ");
+                        uart.println(intArg[0]+intArg[1]);
+                }
+        }
+
+// try >friends(Batman,Superman)
+// Using strncmp to compare just n chars, it should be faster for bigger words
+        else if(strncmp(dir[0].c_str(),"friends",4)==0) {
+                String tmp = "Wow, ";
+                tmp+= strArg[0]; tmp+= " and"; tmp+=strArg[1];
+                tmp+=  " are friends now!";
+                uart.println(tmp);
+
+        }
+
+
+
+// Don't remove this line
+        cleanInterpreter();
 }
