@@ -13,7 +13,7 @@
 
 The leading **>** is mandatory for commands.You can keep any debug messages you have in your code, they won't break stuff.
 
-It is not necessary, but recommended that you include a *newline*('\n') in the end (if you are using Arduino Serial Monitor, just choose *Newline* instead of *No line ending*):
+It is not necessary, but recommended that you include a *newline*('\n') in the end (if you are using Arduino Serial Monitor, just choose *Newline* instead of *No line ending* ):
 
 
 ####How it Works
