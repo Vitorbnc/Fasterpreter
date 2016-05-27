@@ -1,23 +1,28 @@
 # Fasterpreter
-###Your Robot's Fast and Simple Command Interpreter 
-A **fully customizable** Arduino or ESP8266 Command Interpreter that **uses function syntax** you're already familiar with!
-It can be used to **human readable communication** between devices. Simply give a command like you would do when coding. See:
+###Fast and Simple Command Interpreter 
 
-The leading **>** is mandatory, without it, your commands won't do anything. This means you can keep any debug messages you have in your code.
-<br>
+######This is an Arduino or ESP8266 Command Interpreter that uses C-like function syntax.
+######It can be used to create human readable communication between devices. Simply give a command like you would do when coding:
+
 `>car.turn(90)`
+`>rgb(124,255,0)`
 `>house.room.computer(off)`
 `>stop()`
 `>lcd.show(Hello world)`
 `>print(Thomas,John,Peter)`
 
+The leading **>** is mandatory for commands.You can keep any debug messages you have in your code, they won't break stuff.
+It is not necessary, but recommended that you include a *newline*('\n') in the end (if you are using Arduino Serial Monitor, just choose *Newline* instead of *No line ending*):
+
+
+####How it Works
+
 Just put your code inside the `interpret()` function.
-I've also included a **forwardable text** feature. To use it, put your text within quotes:
-<br>
+There's also a forwardable text** feature. To use it, put your text within quotes:
+
 `"Good afternoon, Sir!"`
-<br>
-**Fasterpreter** comes with examples in the code and lots of comments to help you. Try opening Arduino Serial Monitor and typing `>math.sum(182,233)` or `>friends(Batman,Superman)`
-<br>
-<br>
-Yeah, fast simple like that.<br>
+
+Fasterpreter comes with examples in the code and comments to help you. Try opening Arduino Serial Monitor, and typing `>math.sum(182,233)` or `>versus(Batman,Superman)`
+
+Go ahead and try it!
 
