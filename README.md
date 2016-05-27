@@ -12,6 +12,7 @@
 `>print(Thomas,John,Peter)`
 
 The leading **>** is mandatory for commands.You can keep any debug messages you have in your code, they won't break stuff.
+
 It is not necessary, but recommended that you include a *newline*('\n') in the end (if you are using Arduino Serial Monitor, just choose *Newline* instead of *No line ending*):
 
 
@@ -22,7 +23,6 @@ There's also a forwardable text** feature. To use it, put your text within quote
 
 `"Good afternoon, Sir!"`
 
-Fasterpreter comes with examples in the code and comments to help you. Try opening Arduino Serial Monitor, and typing `>math.sum(182,233)` or `>versus(Batman,Superman)`
+Fasterpreter comes with examples in the code and comments to help you. Try opening Arduino Serial Monitor, and typing `>math.sum(182,233)` or `talk(Vader,Luke)`
 
-Go ahead and try it!
-
+**Go ahead and try it!**
