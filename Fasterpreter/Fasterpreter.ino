@@ -6,11 +6,13 @@
 class Fasterpreter {
 
 protected:
-const static int dirCount=2;  // Set your number of dirs here
+const static int dirCount=3;  // Set your number of dirs here
 const static int argCount=3;  //Set your number of args here
-
+char header;
+char trailer;
 public:
 
+char source;
 String dir[dirCount];
 String strArg[argCount];
 int intArg[argCount];
@@ -27,20 +29,27 @@ String cmd;
 
 // constructor here
 Fasterpreter(){
+  header = '>';
+  trailer = ')';
         cleanInterpreter();
+}
+Fasterpreter( char head, char trail){
+  header = head;
+  trailer = trail;
+  cleanInterpreter();
 }
 
 
-void readStream(HardwareSerial* inStream){
+void readStream(HardwareSerial* inStream,char src ='u'){
         if(inStream->available()) {
                 // inStream->read(); is equivalent to *inStream.read()  ------ reads "value pointed to by inStream", it gets the value pointed by the pointer, not its address
                 char c = inStream->read();
-                if(c=='>') {
-                        String serialTxt = inStream->readStringUntil(')');
-                        serialTxt+=')';
+                if(c==header) {
+                        String serialTxt = inStream->readStringUntil(trailer);
+                        serialTxt+=trailer;
                         //uart.println(serialTxt);
+                        source = src;
                         parse(serialTxt);
-
                 }
                 // if you don't want forwardables feature, just comment the lines below
                 /*
@@ -146,7 +155,7 @@ void  parse(String fullTxt){
         //Obs.: fullTxt must already be without '>', use '>' to detect a command in the desired data stream before calling this.
         gotCmd=true;
         int argStartIndex =  fullTxt.indexOf('(');
-        int argEndIndex = fullTxt.indexOf(')');
+        int argEndIndex = fullTxt.indexOf(trailer);
         String rawTxt = fullTxt.substring(0,argStartIndex);
 
         int old_dotIndex =-1;
@@ -224,16 +233,17 @@ void Fasterpreter::interpret(){
                 }
         }
 
-// try >friends(Batman,Superman)
+// try >dna.test(Luke,Vader)
 // Using strncmp to compare just n chars, it should be faster for bigger words
-        else if(strncmp(dir[0].c_str(),"friends",4)==0) {
-                String tmp = "Wow, ";
-                tmp+= strArg[0]; tmp+= " and"; tmp+=strArg[1];
-                tmp+=  " are friends now!";
+        else if(strncmp(dir[0].c_str(),"dna",3)==0) {
+          if(strcmp(dir[1].c_str(),"test")==0){
+
+                String tmp = "";
+                tmp+= strArg[0]; tmp+= ",I'm your father!";
                 uart.println(tmp);
 
         }
-
+}
 
 
 // Don't remove this line

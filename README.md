@@ -1,5 +1,5 @@
 # Fasterpreter
-###Fast and Simple Command Interpreter 
+###Fast and Simple Command Interpreter
 
 ######This is an Arduino or ESP8266 Command Interpreter that uses C-like function syntax.
 ######It can be used to create human readable communication between devices. Simply give a command like you would do when coding:
@@ -23,6 +23,6 @@ There's also a forwardable text** feature. To use it, put your text within quote
 
 `"Good afternoon, Sir!"`
 
-Fasterpreter comes with examples in the code and comments to help you. Try opening Arduino Serial Monitor, and typing `>math.sum(182,233)` or `talk(Vader,Luke)`
+Fasterpreter comes with examples in the code and comments to help you. Try opening Arduino Serial Monitor, and typing `>math.sum(182,233)` or `dna.test(Luke,Vader)`
 
 **Go ahead and try it!**
