@@ -1,8 +1,8 @@
 # Fasterpreter
-###Fast and Simple Command Interpreter
+### Fast and Simple Command Interpreter
 
-######This is an Arduino or ESP8266 Command Interpreter that uses C-like function syntax.
-######It can be used to create human readable communication between devices. Simply give a command like you would do when coding:
+###### This is an Arduino or ESP8266 Command Interpreter that uses C-like function syntax.
+###### It can be used to create human readable communication between devices. Simply give a command like you would do when coding:
 
 `>car.turn(90)`
 `>rgb(124,255,0)`
@@ -16,7 +16,7 @@ The leading **>** is mandatory for commands.You can keep any debug messages you 
 It is not necessary, but recommended that you include a *newline*('\n') in the end (if you are using Arduino Serial Monitor, just choose *Newline* instead of *No line ending* ):
 
 
-####How it Works
+#### How it Works
 
 Just put your code inside the `interpret()` function.
 There's also a forwardable text** feature. To use it, put your text within quotes:
